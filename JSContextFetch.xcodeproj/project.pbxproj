@@ -1,0 +1,68 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXGroup section */
+		FBA2A54124A4ABB300D72D98 = {
+			isa = PBXGroup;
+			children = (
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXProject section */
+		FBA2A54224A4ABB300D72D98 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1150;
+			};
+			buildConfigurationList = FBA2A54524A4ABB300D72D98 /* Build configuration list for PBXProject "JSContextFetch" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = FBA2A54124A4ABB300D72D98;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		FBA2A54624A4ABB300D72D98 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		FBA2A54724A4ABB300D72D98 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FBA2A54524A4ABB300D72D98 /* Build configuration list for PBXProject "JSContextFetch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FBA2A54624A4ABB300D72D98 /* Debug */,
+				FBA2A54724A4ABB300D72D98 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FBA2A54224A4ABB300D72D98 /* Project object */;
+}
