@@ -16,6 +16,7 @@ import JavaScriptCore
     var withCredentials: Bool { get set }
     var readyState: Int { get }
     var responseText: String? { get }
+    var response: String? { get }
     var responseType: String? { get }
     var responseURL: String? { get }
     var status: Int { get }
@@ -36,17 +37,19 @@ import JavaScriptCore
     static var LOADING: Int { get };
     static var DONE: Int { get };
     
-    var open: (@convention(block)(String, String, Bool, String?, String?) -> Void)? { get };
-    
+    var open: (@convention(block)(String, String, Bool, JSValue, JSValue) -> Void)? { get };
+        
     var setRequestHeader: (@convention(block)(String, String?) -> Void)? { get };
     
-    var send: (@convention(block)(Any?) -> Void)? { get };
+    var send: (@convention(block)(JSValue) -> Void)? { get };
     
     var abort: (@convention(block)() -> Void)? { get };
 }
 
-@objc public class XMLHttpRequest : JSObject, XMLHttpRequestProtocol {
+public class XMLHttpRequest : JSObject, XMLHttpRequestProtocol, URLSessionDelegate, URLSessionDataDelegate {
     public static func polyfill(context: JSContext) {
+        addSetTimeoutPolyfill(context: context);
+        context.add(class: ProgressEvent.self, name: "ProgressEvent");
         context.add(class: XMLHttpRequest.self, name: "XMLHttpRequest");
     }
         
@@ -63,6 +66,8 @@ import JavaScriptCore
     }
     
     public dynamic var responseText: String?
+    
+    public dynamic var response: String?
     
     public dynamic var responseType: String?
     
@@ -114,23 +119,77 @@ import JavaScriptCore
     
     private dynamic var _finished: Bool = false
     
+    private dynamic var _noLengthComputable: Bool = false
+    
+    /*
+      Download progress code
+     */
+    
+    private var expectedContentLength = 0
+    private var buffer = NSMutableData();
+    
+    public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: (URLSession.ResponseDisposition) -> Void) {
+        
+        expectedContentLength = Int(response.expectedContentLength)
+        if expectedContentLength < 0 {
+            self._noLengthComputable = true
+        }
+        let progressEvent = ProgressEvent(lengthComputable: !self._noLengthComputable, loaded: 0, total: expectedContentLength);
+        self._call(event: "onprogress", withArguments: [progressEvent]);
+        completionHandler(URLSession.ResponseDisposition.allow)
+    }
+    
+    public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        self.buffer.append(data)
+        
+        let progressEvent = ProgressEvent(lengthComputable: !self._noLengthComputable, loaded: buffer.length, total: self.expectedContentLength);
+        self._call(event: "onprogress", withArguments: [progressEvent]);
+    }
+    
+    public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        self._finished = true
+        let progressEvent = ProgressEvent(lengthComputable: !self._noLengthComputable, loaded: buffer.length, total: self.expectedContentLength);
+        self._call(event: "onprogress", withArguments: [progressEvent]);
+        let response = task.response;
+        if let error = error {
+            print("HTTP Error: \(error)")
+            self._call(event: "onerror");
+            return;
+        }
+        guard let httpResponse = response as? HTTPURLResponse,
+            (200...299).contains(httpResponse.statusCode) else {
+            self._call(event: "onerror");
+            return
+        }
+        if self._cancelled { return }
+        self.responseURL = response?.url?.absoluteString;
+        self.responseText = String(data: self.buffer as Data, encoding: .utf8);
+        self.response = self.responseText
+        self.status = httpResponse.statusCode;
+        self._call(event: "onload")
+    }
+    
     /*
      Public XMLHttpRequest methods
      */
     
-    public var open: (@convention(block)(String, String, Bool, String?, String?) -> Void)? {
-        return { [unowned self] (method: String, url: String, async: Bool, user: String?, password: String?) in
+    public var open: (@convention(block)(String, String, Bool, JSValue, JSValue) -> Void)? {
+        return { [unowned self] (_ method: String, _ url: String, _ async: Bool, _ user: JSValue, _ password: JSValue) in
             self._method = method;
             self._url = url;
             self._async = async;
-            self._user = user;
-            self._password = password;
+            if user.isString {
+                self._user = user.toString();
+            }
+            if password.isString {
+                self._password = password.toString();
+            }
             self.readyState = self.OPENED;
         }
     };
     
     public var setRequestHeader: (@convention(block)(String, String?) -> Void)? {
-        return { [unowned self] (header: String, value: String?) in
+        return { [unowned self] (_ header: String, _ value: String?) in
             if value != nil {
                 self._headers[header] = value!;
             } else {
@@ -139,21 +198,18 @@ import JavaScriptCore
         }
     };
     
-    public var send: (@convention(block) (Any?) -> Void)? {
-        return { [unowned self] (body: Any?) in
+    public var send: (@convention(block) (JSValue) -> Void)? {
+        return { [unowned self] (_ body: JSValue) in
             let config = URLSessionConfiguration.default;
-            self._session = URLSession(configuration: config);
+            self._session = URLSession(configuration: config, delegate: self, delegateQueue: .main);
             let url = URL(string: self._url);
             var request = URLRequest(url: url!);
             request.httpMethod = self._method;
             request.allHTTPHeaderFields = self._headers;
-            if (body != nil) {
-                request.httpBody = body as? Data;
+            if body.isString {
+                request.httpBody = body.toString()?.data(using: .utf8)
             }
-            self._session?.downloadTask(with: request, completionHandler: { (url, response, error) in
-                if self._cancelled { return }
-                self._finished = true
-            })
+            let task = self._session?.dataTask(with: request);
             if self.timeout > 0 {
                 DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.milliseconds(self.timeout)) {
                     if !self._finished {
@@ -163,6 +219,7 @@ import JavaScriptCore
                     }
                 }
             }
+            task?.resume()
         }
     }
     
@@ -177,8 +234,10 @@ import JavaScriptCore
     }
     
     private func _call(event: String, withArguments: [Any]) {
-        if let event = self.this?.value.forProperty("event") {
-            event.call(withArguments: withArguments);
+        if let event = self.this?.value?.forProperty(event) {
+            if !event.isUndefined && !event.isNull {
+                event.call(withArguments: withArguments);
+            }
         }
     }
     
@@ -187,28 +246,3 @@ import JavaScriptCore
     }
 
 }
-
-private extension JSContext {
-    func add(class cls: AnyClass, name: String) {
-        let constructorName = "__constructor__\(name)"
-        
-        let constructor: @convention(block)() -> NSObject = {
-            let cls = cls as! NSObject.Type
-            return cls.init()
-        }
-        
-        self.setObject(unsafeBitCast(constructor, to: AnyObject.self),
-            forKeyedSubscript: constructorName as NSCopying & NSObjectProtocol)
-        
-        let script = "function \(name)() " +
-            "{ " +
-            "   var obj = \(constructorName)(); " +
-            "   obj.setThisValue(obj); " +
-            "   return obj; " +
-            "} "
-        
-        self.evaluateScript(script);
-    }
-}
-
-extension String : Error {}

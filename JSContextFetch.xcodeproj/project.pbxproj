@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FB47741C24A513330019C14D /* JSContext+ProgressEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB47741B24A513330019C14D /* JSContext+ProgressEvent.swift */; };
+		FB47741E24A514640019C14D /* JSContext+AddClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB47741D24A514640019C14D /* JSContext+AddClass.swift */; };
+		FB47742024A519470019C14D /* JSContext+setTimeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB47741F24A519470019C14D /* JSContext+setTimeout.swift */; };
 		FBA2A55324A4ABF600D72D98 /* JSContextFetch.h in Headers */ = {isa = PBXBuildFile; fileRef = FBA2A55124A4ABF600D72D98 /* JSContextFetch.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FBA2A55C24A4AEBF00D72D98 /* JSContext+XMLHttpRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA2A55B24A4AEBF00D72D98 /* JSContext+XMLHttpRequest.swift */; };
 		FBA2A56424A4AFA500D72D98 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA2A56324A4AFA500D72D98 /* main.swift */; };
@@ -49,6 +52,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		FB47741B24A513330019C14D /* JSContext+ProgressEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JSContext+ProgressEvent.swift"; sourceTree = "<group>"; };
+		FB47741D24A514640019C14D /* JSContext+AddClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JSContext+AddClass.swift"; sourceTree = "<group>"; };
+		FB47741F24A519470019C14D /* JSContext+setTimeout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JSContext+setTimeout.swift"; sourceTree = "<group>"; };
 		FBA2A54E24A4ABF600D72D98 /* JSContextFetch.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = JSContextFetch.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FBA2A55124A4ABF600D72D98 /* JSContextFetch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSContextFetch.h; sourceTree = "<group>"; };
 		FBA2A55224A4ABF600D72D98 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -94,6 +100,9 @@
 				FBA2A55124A4ABF600D72D98 /* JSContextFetch.h */,
 				FBA2A55B24A4AEBF00D72D98 /* JSContext+XMLHttpRequest.swift */,
 				FBA2A56E24A4BE5000D72D98 /* JSExport+JSObject.swift */,
+				FB47741B24A513330019C14D /* JSContext+ProgressEvent.swift */,
+				FB47741D24A514640019C14D /* JSContext+AddClass.swift */,
+				FB47741F24A519470019C14D /* JSContext+setTimeout.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -226,7 +235,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				FBA2A56F24A4BE5000D72D98 /* JSExport+JSObject.swift in Sources */,
+				FB47742024A519470019C14D /* JSContext+setTimeout.swift in Sources */,
+				FB47741C24A513330019C14D /* JSContext+ProgressEvent.swift in Sources */,
 				FBA2A55C24A4AEBF00D72D98 /* JSContext+XMLHttpRequest.swift in Sources */,
+				FB47741E24A514640019C14D /* JSContext+AddClass.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
