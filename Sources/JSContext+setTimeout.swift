@@ -31,20 +31,20 @@ public func addSetTimeoutPolyfill(context: JSContext) {
 
         function setTimeout(__f, __t, ...args) {
             var id = __lastTimeout;
+            __lastTimeout++;
+            __timeoutMap[id] = true;
             __setTimeout({
                 callback: () => {
                     if (__timeoutMap[id]) {
                         delete __timeoutMap[id];
-                        return;
+                        __f(...args);
                     }
-                    __f(...args);
                 }
             }, __t);
-            __lastTimeout++;
             return id;
         }
         function clearTimeout(id) {
-            __timeoutMap[id] = true;
+            delete __timeoutMap[id];
         }
     """)
 }

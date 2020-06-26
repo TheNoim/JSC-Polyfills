@@ -59,7 +59,7 @@ var result = context?.evaluateScript("""
             print('Timeout hello');
         }, 1000);
         
-        clearTimeout(x);
+        // clearTimeout(x);
 
         fetch('https://entt10ke7u5w.x.pipedream.net', {
             method: 'POST',
