@@ -27,13 +27,13 @@ import JavaScriptCore
     
     var UNSENT: Int { get };
     var OPENED: Int { get };
-    var EADERS_RECEIVED: Int { get };
+    var HEADERS_RECEIVED: Int { get };
     var LOADING: Int { get };
     var DONE: Int { get };
     
     static var UNSENT: Int { get };
     static var OPENED: Int { get };
-    static var EADERS_RECEIVED: Int { get };
+    static var HEADERS_RECEIVED: Int { get };
     static var LOADING: Int { get };
     static var DONE: Int { get };
     
@@ -44,6 +44,8 @@ import JavaScriptCore
     var send: (@convention(block)(JSValue) -> Void)? { get };
     
     var abort: (@convention(block)() -> Void)? { get };
+    
+    var getAllResponseHeaders: (@convention(block)() -> String)? { get };
 }
 
 public class XMLHttpRequest : JSObject, XMLHttpRequestProtocol, URLSessionDelegate, URLSessionDataDelegate {
@@ -85,13 +87,13 @@ public class XMLHttpRequest : JSObject, XMLHttpRequestProtocol, URLSessionDelega
     
     public dynamic var UNSENT: Int = 0;
     public dynamic var OPENED: Int = 1;
-    public dynamic var EADERS_RECEIVED: Int = 2;
+    public dynamic var HEADERS_RECEIVED: Int = 2;
     public dynamic var LOADING: Int = 3;
     public dynamic var DONE: Int = 4;
     
     public static dynamic var UNSENT: Int = 0;
     public static dynamic var OPENED: Int = 1;
-    public static dynamic var EADERS_RECEIVED: Int = 2;
+    public static dynamic var HEADERS_RECEIVED: Int = 2;
     public static dynamic var LOADING: Int = 3;
     public static dynamic var DONE: Int = 4;
     
@@ -121,6 +123,8 @@ public class XMLHttpRequest : JSObject, XMLHttpRequestProtocol, URLSessionDelega
     
     private dynamic var _noLengthComputable: Bool = false
     
+    private var _task: URLSessionTask?;
+    
     /*
       Download progress code
      */
@@ -134,6 +138,11 @@ public class XMLHttpRequest : JSObject, XMLHttpRequestProtocol, URLSessionDelega
         if expectedContentLength < 0 {
             self._noLengthComputable = true
         }
+        
+        if self.readyState < self.HEADERS_RECEIVED {
+            self.readyState = self.HEADERS_RECEIVED;
+        }
+        
         let progressEvent = ProgressEvent(lengthComputable: !self._noLengthComputable, loaded: 0, total: expectedContentLength);
         self._call(event: "onprogress", withArguments: [progressEvent]);
         completionHandler(URLSession.ResponseDisposition.allow)
@@ -141,6 +150,15 @@ public class XMLHttpRequest : JSObject, XMLHttpRequestProtocol, URLSessionDelega
     
     public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
         self.buffer.append(data)
+        if self.responseText == nil {
+            self.responseText = "";
+        }
+        
+        self.responseText! += String(data: self.buffer as Data, encoding: .utf8) ?? "";
+        
+        if self.readyState < self.LOADING {
+            self.readyState = self.LOADING
+        }
         
         let progressEvent = ProgressEvent(lengthComputable: !self._noLengthComputable, loaded: buffer.length, total: self.expectedContentLength);
         self._call(event: "onprogress", withArguments: [progressEvent]);
@@ -152,12 +170,14 @@ public class XMLHttpRequest : JSObject, XMLHttpRequestProtocol, URLSessionDelega
         self._call(event: "onprogress", withArguments: [progressEvent]);
         let response = task.response;
         if let error = error {
+            if self._cancelled { return };
             print("HTTP Error: \(error)")
             self._call(event: "onerror");
             return;
         }
         guard let httpResponse = response as? HTTPURLResponse,
             (200...299).contains(httpResponse.statusCode) else {
+            if self._cancelled { return };
             self._call(event: "onerror");
             return
         }
@@ -166,6 +186,7 @@ public class XMLHttpRequest : JSObject, XMLHttpRequestProtocol, URLSessionDelega
         self.responseText = String(data: self.buffer as Data, encoding: .utf8);
         self.response = self.responseText
         self.status = httpResponse.statusCode;
+        self.readyState = self.DONE;
         self._call(event: "onload")
     }
     
@@ -206,30 +227,48 @@ public class XMLHttpRequest : JSObject, XMLHttpRequestProtocol, URLSessionDelega
             var request = URLRequest(url: url!);
             request.httpMethod = self._method;
             request.allHTTPHeaderFields = self._headers;
-            if body.isString {
-                request.httpBody = body.toString()?.data(using: .utf8)
-            }
-            let task = self._session?.dataTask(with: request);
-            if self.timeout > 0 {
-                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.milliseconds(self.timeout)) {
-                    if !self._finished {
-                        self._cancelled = true;
-                        self._session?.invalidateAndCancel();
-                        self._call(event: "ontimeout");
-                    }
+            if !body.isNull && !body.isUndefined {
+                if body.isString {
+                    request.httpBody = body.toString()?.data(using: .utf8)
                 }
             }
-            task?.resume()
+            self._task = self._session?.dataTask(with: request);
+            if let task = self._task {
+                if self.timeout > 0 {
+                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + DispatchTimeInterval.milliseconds(self.timeout)) {
+                        if !self._finished {
+                            self._cancelled = true;
+                            task.cancel();
+                            self._call(event: "ontimeout");
+                        }
+                    }
+                }
+                task.resume();
+            }
         }
     }
     
     public var abort: (@convention(block) () -> Void)? {
         return { [unowned self] () in
-            if self._session != nil {
+            if let task = self._task {
                 self._cancelled = true;
-                self._session?.invalidateAndCancel();
+                task.cancel();
                 self._call(event: "onabort");
             }
+        }
+    }
+    
+    public var getAllResponseHeaders: (@convention(block) () -> String)? {
+        return { [unowned self] () in
+            var allHeadersString = "";
+            if let task = self._task {
+                if let response = task.response as? HTTPURLResponse {
+                    for (n, value) in response.allHeaderFields {
+                        allHeadersString += "\(n): \(value)\r\n";
+                    }
+                }
+            }
+            return allHeadersString;
         }
     }
     

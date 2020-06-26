@@ -17,13 +17,13 @@ let printFunc : @convention(block) (String) -> Void  = { text in print(text) }
 context?.setObject(unsafeBitCast(printFunc, to: AnyObject.self), forKeyedSubscript: "print"
     as NSCopying & NSObjectProtocol);
 
-context?.exceptionHandler = { ctx, ex in print("\(ex!)") }
+context?.exceptionHandler = { ctx, ex in print("[JS] \(ex!)") }
 
-XMLHttpRequest.polyfill(context: context!);
+context?.addPolyfills();
 
 var result = context?.evaluateScript("""
     (function () {
-        print(DataView);
+        print("Typeof: " + typeof decodeURI)
         var xhr = new XMLHttpRequest();
 
         xhr.setRequestHeader("X-Test", "Hello");
@@ -53,11 +53,27 @@ var result = context?.evaluateScript("""
 
         xhr.send("Test");
 
+        // xhr.abort();
+
         var x = setTimeout(() => {
             print('Timeout hello');
         }, 1000);
         
         clearTimeout(x);
+
+        fetch('https://entt10ke7u5w.x.pipedream.net', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({a: 1, b: 'Textual content'})
+        }).then(resp => {
+            print(JSON.stringify(resp.headers));
+            return resp.json();
+        }).then(data => {
+            print(JSON.stringify(data));
+        });
     })();
 """);
 
