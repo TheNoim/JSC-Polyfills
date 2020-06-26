@@ -1,0 +1,18 @@
+{
+  "name": "js",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "abortcontroller-polyfill": "^1.4.0",
+    "blob-polyfill": "^4.0.20200601",
+    "formdata-polyfill": "^3.0.20",
+    "whatwg-fetch": "^3.0.0"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4"
+  },
+  "scripts": {
+  	"build": "parcel build polyfills.js --bundle-node-modules -d js-polyfills -o bundle.js"
+  }
+}
