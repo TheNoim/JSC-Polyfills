@@ -38,7 +38,7 @@ Pod::Spec.new do |spec|
   #  Popular ones are 'MIT', 'BSD' and 'Apache License, Version 2.0'.
   #
 
-  spec.license      = { :type => "MIT", :file => "./LICENSE" }
+  spec.license      = "MIT"
 
 
   # ――― Author Metadata  ――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -104,9 +104,9 @@ Pod::Spec.new do |spec|
   #
 
   # spec.resource  = "icon.png"
-  spec.resources = "js-polyfills/*.js", "build-js.sh", "LICENSE"
+  spec.resources = "js-polyfills/*.js", "build-js.sh"
   
-  spec.preserve_path = "build-js.sh", "package.json", "polyfills.js", "yarn.lock"
+  spec.preserve_path = "build-js.sh", "package.json", "polyfills.js", "yarn.lock", "LICENSE"
 
   # spec.preserve_paths = "FilesToSave", "MoreFilesToSave"
 
