@@ -31,4 +31,4 @@ internal extension JSContext {
     }
 }
 
-internal extension String : Error {}
+extension String : Error {}
