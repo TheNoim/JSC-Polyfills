@@ -68,7 +68,7 @@
 		FB47741F24A519470019C14D /* JSContext+setTimeout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JSContext+setTimeout.swift"; sourceTree = "<group>"; };
 		FB6155CB24A7531200AC5B98 /* JSC-Polyfills.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; fileEncoding = 4; path = "JSC-Polyfills.podspec"; sourceTree = "<group>"; };
 		FB6155CD24A7591200AC5B98 /* build-js.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "build-js.sh"; sourceTree = "<group>"; };
-		FB6155D124A75B7300AC5B98 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		FB6155D124A75B7300AC5B98 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
 		FBA2A54E24A4ABF600D72D98 /* JSContextFetch.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = JSContextFetch.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FBA2A55124A4ABF600D72D98 /* JSContextFetch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSContextFetch.h; sourceTree = "<group>"; };
 		FBA2A55224A4ABF600D72D98 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -125,7 +125,6 @@
 			children = (
 				FB6155CB24A7531200AC5B98 /* JSC-Polyfills.podspec */,
 				FB6155CD24A7591200AC5B98 /* build-js.sh */,
-				FB6155D124A75B7300AC5B98 /* LICENSE */,
 				FB18391724A630B80096E733 /* js-polyfills */,
 				FBA2A54824A4ABC700D72D98 /* Sources */,
 				FBA2A56224A4AFA500D72D98 /* TestCli */,
@@ -137,6 +136,7 @@
 		FBA2A54824A4ABC700D72D98 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				FB6155D124A75B7300AC5B98 /* LICENSE */,
 				FBA2A55224A4ABF600D72D98 /* Info.plist */,
 				FBA2A55124A4ABF600D72D98 /* JSContextFetch.h */,
 				FBA2A55B24A4AEBF00D72D98 /* JSContext+XMLHttpRequest.swift */,

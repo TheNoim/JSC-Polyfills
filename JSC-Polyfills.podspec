@@ -78,7 +78,7 @@ Pod::Spec.new do |spec|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  spec.source       = { :git => "https://github.com/TheNoim/JSC-Polyfills.git", :commit => "6c07410bd8fc491919858e364328d9cc190cf80d" }
+  spec.source       = { :git => "https://github.com/TheNoim/JSC-Polyfills.git", :tag => spec.version.to_s }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -106,7 +106,7 @@ Pod::Spec.new do |spec|
   # spec.resource  = "icon.png"
   spec.resources = "js-polyfills/*.js", "build-js.sh"
   
-  spec.preserve_path = "build-js.sh", "package.json", "polyfills.js", "yarn.lock", "LICENSE"
+  spec.preserve_path = "build-js.sh", "package.json", "polyfills.js", "yarn.lock"
 
   # spec.preserve_paths = "FilesToSave", "MoreFilesToSave"
 
