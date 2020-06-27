@@ -46,9 +46,17 @@ import JavaScriptCore
     var abort: (@convention(block)() -> Void)? { get };
     
     var getAllResponseHeaders: (@convention(block)() -> String)? { get };
+    
+    // Manuell events
+    var onload: JSValue? { get set };
+    var onprogress: JSValue? { get set };
+    var onerror: JSValue? { get set };
+    var ontimeout: JSValue? { get set };
+    var onabort: JSValue? { get set };
+    var onreadystatechange: JSValue? { get set };
 }
 
-public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelegate, URLSessionDataDelegate, JSContextSetter {
+@objc public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelegate, URLSessionDataDelegate, JSContextSetter {
     public static func polyfill(context: JSContext) {
         addSetTimeoutPolyfill(context: context);
         context.add(class: XMLHttpRequest.self, name: "XMLHttpRequest");
@@ -62,7 +70,9 @@ public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelega
         }
         set(newReadyState) {
             self._readyState = newReadyState;
-            self._call(event: "onreadystatechange", withArguments: [newReadyState]);
+            if let onreadystatechange = self.onreadystatechange {
+                onreadystatechange.call(withArguments: [newReadyState]);
+            }
         }
     }
     
@@ -133,6 +143,17 @@ public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelega
     }
     
     /*
+     Events
+     */
+    
+    public dynamic var onload: JSValue?
+    public dynamic var onprogress: JSValue?
+    public dynamic var onerror: JSValue?
+    public dynamic var ontimeout: JSValue?
+    public dynamic var onabort: JSValue?
+    public dynamic var onreadystatechange: JSValue?
+    
+    /*
       Download progress code
      */
     
@@ -151,7 +172,9 @@ public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelega
         }
         
         let progressEvent = ProgressEvent(lengthComputable: !self._noLengthComputable, loaded: 0, total: expectedContentLength);
-        self._call(event: "onprogress", withArguments: [progressEvent]);
+        if let onprogress = self.onprogress {
+            onprogress.call(withArguments: [progressEvent]);
+        }
         completionHandler(URLSession.ResponseDisposition.allow)
     }
     
@@ -168,24 +191,32 @@ public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelega
         }
         
         let progressEvent = ProgressEvent(lengthComputable: !self._noLengthComputable, loaded: buffer.length, total: self.expectedContentLength);
-        self._call(event: "onprogress", withArguments: [progressEvent]);
+        if let onprogress = self.onprogress {
+            onprogress.call(withArguments: [progressEvent]);
+        }
     }
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         self._finished = true
         let progressEvent = ProgressEvent(lengthComputable: !self._noLengthComputable, loaded: buffer.length, total: self.expectedContentLength);
-        self._call(event: "onprogress", withArguments: [progressEvent]);
+        if let onprogress = self.onprogress {
+            onprogress.call(withArguments: [progressEvent]);
+        }
         let response = task.response;
         if let error = error {
             if self._cancelled { return };
             print("HTTP Error: \(error)")
-            self._call(event: "onerror");
+            if let onerror = self.onerror {
+                onerror.call(withArguments: []);
+            }
             return;
         }
         guard let httpResponse = response as? HTTPURLResponse,
             (200...299).contains(httpResponse.statusCode) else {
             if self._cancelled { return };
-            self._call(event: "onerror");
+            if let onerror = self.onerror {
+                onerror.call(withArguments: []);
+            }
             return
         }
         if self._cancelled { return }
@@ -193,7 +224,9 @@ public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelega
         self.responseText = String(data: self.buffer as Data, encoding: .utf8);
         self.response = self.responseText
         self.status = httpResponse.statusCode;
-        self._call(event: "onload")
+        if let onload = self.onload {
+            onload.call(withArguments: []);
+        }
         self.readyState = self.DONE;
     }
     
@@ -246,7 +279,9 @@ public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelega
                         if !self._finished {
                             self._cancelled = true;
                             task.cancel();
-                            self._call(event: "ontimeout");
+                            if let ontimeout = self.ontimeout {
+                                ontimeout.call(withArguments: []);
+                            }
                         }
                     }
                 }
@@ -261,7 +296,9 @@ public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelega
             if let task = self._task {
                 self._cancelled = true;
                 task.cancel();
-                self._call(event: "onabort");
+                if let onabort = self.onabort {
+                    onabort.call(withArguments: []);
+                }
             }
         }
     }
@@ -279,22 +316,4 @@ public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelega
             return allHeadersString;
         }
     }
-    
-    private func _call(event: String, withArguments: [Any]) {
-        DispatchQueue.main.async {
-            let realContext = JSContext(jsGlobalContextRef: self.context);
-            if let selfValue = JSValue(object: self, in: realContext) {
-                if let method = selfValue.objectForKeyedSubscript(event) {
-                    if !method.isNull && !method.isUndefined {
-                        selfValue.invokeMethod(event, withArguments: withArguments);
-                    }
-                }
-            }
-        }
-    }
-    
-    private func _call(event: String) {
-        self._call(event: event, withArguments: []);
-    }
-
 }
