@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "JSC-Polyfills"
-  spec.version      = "0.0.8"
+  spec.version      = "0.0.9"
   spec.summary      = "Add some browser specific features (fetch, XMLHttpRequest) as polyfill to JSContext"
 
   # This description is used to generate tags and improve search results.
