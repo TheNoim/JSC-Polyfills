@@ -9,8 +9,8 @@ import Foundation
 import JavaScriptCore
 
 internal protocol JSContextSetter {
-    var context: JSContext { get set };
-    init(context: JSContext);
+    var context: JSContextRef { get set };
+    init(context: JSContextRef);
 }
 
 internal extension JSContext {
@@ -19,7 +19,7 @@ internal extension JSContext {
         
         let constructor: @convention(block)() -> NSObject = {
             let cls = cls as! JSContextSetter.Type
-            return cls.init(context: currentContext) as! NSObject;
+            return cls.init(context: currentContext.jsGlobalContextRef) as! NSObject;
         }
         
         self.setObject(unsafeBitCast(constructor, to: AnyObject.self),

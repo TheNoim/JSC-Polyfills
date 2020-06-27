@@ -126,9 +126,9 @@ public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelega
     
     private var _task: URLSessionTask?;
     
-    public var context: JSContext;
+    public var context: JSContextRef;
     
-    required init(context: JSContext) {
+    required init(context: JSContextRef) {
         self.context = context;
     }
     
@@ -282,7 +282,8 @@ public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelega
     
     private func _call(event: String, withArguments: [Any]) {
         DispatchQueue.main.async {
-            if let selfValue = JSValue(object: self, in: self.context) {
+            let realContext = JSContext(jsGlobalContextRef: self.context);
+            if let selfValue = JSValue(object: self, in: realContext) {
                 if let method = selfValue.objectForKeyedSubscript(event) {
                     if !method.isNull && !method.isUndefined {
                         selfValue.invokeMethod(event, withArguments: withArguments);
