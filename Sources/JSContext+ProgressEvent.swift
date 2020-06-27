@@ -8,13 +8,13 @@
 import Foundation
 import JavaScriptCore
 
-@objc public protocol ProgressEventProtocol : JSExport, JSObjectProtocol {
+@objc public protocol ProgressEventProtocol : JSExport {
     var lengthComputable: Bool { get };
     var loaded: Int { get };
     var total: Int { get };
 }
 
-public class ProgressEvent : JSObject, ProgressEventProtocol {
+public class ProgressEvent : NSObject, ProgressEventProtocol {
     public dynamic var lengthComputable: Bool
     
     public dynamic var loaded: Int

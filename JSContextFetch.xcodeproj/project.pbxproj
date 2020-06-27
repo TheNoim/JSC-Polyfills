@@ -15,13 +15,11 @@
 		FB47741E24A514640019C14D /* JSContext+AddClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB47741D24A514640019C14D /* JSContext+AddClass.swift */; };
 		FB47742024A519470019C14D /* JSContext+setTimeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB47741F24A519470019C14D /* JSContext+setTimeout.swift */; };
 		FB6155CC24A7531200AC5B98 /* JSC-Polyfills.podspec in Resources */ = {isa = PBXBuildFile; fileRef = FB6155CB24A7531200AC5B98 /* JSC-Polyfills.podspec */; };
-		FB6155D224A75B7300AC5B98 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = FB6155D124A75B7300AC5B98 /* LICENSE */; };
 		FBA2A55324A4ABF600D72D98 /* JSContextFetch.h in Headers */ = {isa = PBXBuildFile; fileRef = FBA2A55124A4ABF600D72D98 /* JSContextFetch.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FBA2A55C24A4AEBF00D72D98 /* JSContext+XMLHttpRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA2A55B24A4AEBF00D72D98 /* JSContext+XMLHttpRequest.swift */; };
 		FBA2A56424A4AFA500D72D98 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA2A56324A4AFA500D72D98 /* main.swift */; };
 		FBA2A56924A4BAC200D72D98 /* JSContextFetch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FBA2A54E24A4ABF600D72D98 /* JSContextFetch.framework */; };
 		FBA2A56A24A4BAC200D72D98 /* JSContextFetch.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FBA2A54E24A4ABF600D72D98 /* JSContextFetch.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		FBA2A56F24A4BE5000D72D98 /* JSExport+JSObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBA2A56E24A4BE5000D72D98 /* JSExport+JSObject.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,7 +73,6 @@
 		FBA2A55B24A4AEBF00D72D98 /* JSContext+XMLHttpRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JSContext+XMLHttpRequest.swift"; sourceTree = "<group>"; };
 		FBA2A56124A4AFA500D72D98 /* TestCli */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestCli; sourceTree = BUILT_PRODUCTS_DIR; };
 		FBA2A56324A4AFA500D72D98 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		FBA2A56E24A4BE5000D72D98 /* JSExport+JSObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JSExport+JSObject.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,7 +137,6 @@
 				FBA2A55224A4ABF600D72D98 /* Info.plist */,
 				FBA2A55124A4ABF600D72D98 /* JSContextFetch.h */,
 				FBA2A55B24A4AEBF00D72D98 /* JSContext+XMLHttpRequest.swift */,
-				FBA2A56E24A4BE5000D72D98 /* JSExport+JSObject.swift */,
 				FB47741B24A513330019C14D /* JSContext+ProgressEvent.swift */,
 				FB47741D24A514640019C14D /* JSContext+AddClass.swift */,
 				FB47741F24A519470019C14D /* JSContext+setTimeout.swift */,
@@ -345,7 +341,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FB6155D224A75B7300AC5B98 /* LICENSE in Resources */,
 				FB6155CC24A7531200AC5B98 /* JSC-Polyfills.podspec in Resources */,
 				FB18391A24A630B80096E733 /* bundle.js in Resources */,
 			);
@@ -427,7 +422,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FBA2A56F24A4BE5000D72D98 /* JSExport+JSObject.swift in Sources */,
 				FB47742024A519470019C14D /* JSContext+setTimeout.swift in Sources */,
 				FB47741C24A513330019C14D /* JSContext+ProgressEvent.swift in Sources */,
 				FB18391024A62E4C0096E733 /* JSContext+Polyfill.swift in Sources */,

@@ -12,7 +12,7 @@ import JavaScriptCore
 
 // https://xhr.spec.whatwg.org/
 
-@objc public protocol XMLHttpRequestProtocol : JSExport, JSObjectProtocol {
+@objc public protocol XMLHttpRequestProtocol : JSExport {
     var withCredentials: Bool { get set }
     var readyState: Int { get }
     var responseText: String? { get }
@@ -48,10 +48,9 @@ import JavaScriptCore
     var getAllResponseHeaders: (@convention(block)() -> String)? { get };
 }
 
-public class XMLHttpRequest : JSObject, XMLHttpRequestProtocol, URLSessionDelegate, URLSessionDataDelegate {
+public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelegate, URLSessionDataDelegate, JSContextSetter {
     public static func polyfill(context: JSContext) {
         addSetTimeoutPolyfill(context: context);
-        context.add(class: ProgressEvent.self, name: "ProgressEvent");
         context.add(class: XMLHttpRequest.self, name: "XMLHttpRequest");
     }
         
@@ -124,6 +123,12 @@ public class XMLHttpRequest : JSObject, XMLHttpRequestProtocol, URLSessionDelega
     private dynamic var _noLengthComputable: Bool = false
     
     private var _task: URLSessionTask?;
+    
+    public var context: JSContext;
+    
+    required init(context: JSContext) {
+        self.context = context;
+    }
     
     /*
       Download progress code
@@ -273,9 +278,11 @@ public class XMLHttpRequest : JSObject, XMLHttpRequestProtocol, URLSessionDelega
     }
     
     private func _call(event: String, withArguments: [Any]) {
-        if let event = self.this?.value?.forProperty(event) {
-            if !event.isUndefined && !event.isNull {
-                event.call(withArguments: withArguments);
+        if let selfValue = JSValue(object: self, in: self.context) {
+            if let method = selfValue.objectForKeyedSubscript(event) {
+                if !method.isNull && !method.isUndefined {
+                    selfValue.invokeMethod(event, withArguments: withArguments);
+                }
             }
         }
     }
