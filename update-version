@@ -1,4 +1,6 @@
 #!/bin/bash
 
 npx podspec-bump $1 -w
-git tag `npx podspec-bump --dump-version`
+NEW_VERSION=`npx podspec-bump --dump-version`
+git commit -a -S -m "Update version to $NEW_VERSION"
+git tag $NEW_VERSION
