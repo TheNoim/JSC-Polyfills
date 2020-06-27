@@ -1,0 +1,4 @@
+#!/bin/bash
+
+npx podspec-bump $0 -w
+git tag `podspec-bump --dump-version`
