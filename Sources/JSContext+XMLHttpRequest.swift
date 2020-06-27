@@ -122,6 +122,8 @@ public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelega
     
     private dynamic var _noLengthComputable: Bool = false
     
+    private var _operationQueue = OperationQueue();
+    
     private var _task: URLSessionTask?;
     
     public var context: JSContext;
@@ -191,8 +193,8 @@ public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelega
         self.responseText = String(data: self.buffer as Data, encoding: .utf8);
         self.response = self.responseText
         self.status = httpResponse.statusCode;
-        self.readyState = self.DONE;
         self._call(event: "onload")
+        self.readyState = self.DONE;
     }
     
     /*
@@ -227,7 +229,7 @@ public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelega
     public var send: (@convention(block) (JSValue) -> Void)? {
         return { [unowned self] (_ body: JSValue) in
             let config = URLSessionConfiguration.default;
-            self._session = URLSession(configuration: config, delegate: self, delegateQueue: .main);
+            self._session = URLSession(configuration: config, delegate: self, delegateQueue: self._operationQueue);
             let url = URL(string: self._url);
             var request = URLRequest(url: url!);
             request.httpMethod = self._method;
@@ -248,6 +250,7 @@ public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelega
                         }
                     }
                 }
+                task.priority = URLSessionDataTask.highPriority;
                 task.resume();
             }
         }
@@ -278,10 +281,12 @@ public class XMLHttpRequest : NSObject, XMLHttpRequestProtocol, URLSessionDelega
     }
     
     private func _call(event: String, withArguments: [Any]) {
-        if let selfValue = JSValue(object: self, in: self.context) {
-            if let method = selfValue.objectForKeyedSubscript(event) {
-                if !method.isNull && !method.isUndefined {
-                    selfValue.invokeMethod(event, withArguments: withArguments);
+        DispatchQueue.main.async {
+            if let selfValue = JSValue(object: self, in: self.context) {
+                if let method = selfValue.objectForKeyedSubscript(event) {
+                    if !method.isNull && !method.isUndefined {
+                        selfValue.invokeMethod(event, withArguments: withArguments);
+                    }
                 }
             }
         }
